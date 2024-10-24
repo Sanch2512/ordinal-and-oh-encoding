@@ -1,0 +1,71 @@
+import pandas as pd
+import numpy as np
+
+# Sample dataset for demonstration
+data = {
+    'Size': ['Small', 'Medium', 'Large', 'Medium', 'Small', 'Large'],
+    'Color': ['Red', 'Blue', 'Green', 'Blue', 'Green', 'Red']
+}
+
+df = pd.DataFrame(data)
+
+# Ordinal Encoding Function
+def ordinal_encoding(column, order=None):
+    """
+    Function to perform ordinal encoding on a categorical column.
+    
+    Parameters:
+    column (pd.Series): The categorical column to encode.
+    order (list): Optional predefined order of categories.
+    
+    Returns:
+    pd.Series: The column with ordinal encoding applied.
+    """
+    if order:
+        # Map categories to ordinal numbers based on the provided order
+        ordinal_map = {category: idx for idx, category in enumerate(order)}
+    else:
+        # Default order based on sorted unique values
+        unique_categories = sorted(column.unique())
+        ordinal_map = {category: idx for idx, category in enumerate(unique_categories)}
+    
+    return column.map(ordinal_map)
+
+# One-Hot Encoding Function
+def one_hot_encoding(column):
+    """
+    Function to perform one-hot encoding on a categorical column.
+    
+    Parameters:
+    column (pd.Series): The categorical column to encode.
+    
+    Returns:
+    pd.DataFrame: A new DataFrame with one-hot encoded columns.
+    """
+    # Get unique categories
+    unique_categories = column.unique()
+    
+    # Create a new DataFrame for the one-hot encoding
+    one_hot_df = pd.DataFrame()
+    
+    for category in unique_categories:
+        one_hot_df[f"{column.name}_{category}"] = np.where(column == category, 1, 0)
+    
+    return one_hot_df
+
+# Example usage of ordinal encoding
+print("Original DataFrame:")
+print(df)
+
+# Perform ordinal encoding on 'Size' column (custom order)
+size_order = ['Small', 'Medium', 'Large']
+df['Size_Ordinal'] = ordinal_encoding(df['Size'], size_order)
+
+# Perform one-hot encoding on 'Color' column
+color_one_hot = one_hot_encoding(df['Color'])
+
+# Concatenate the original DataFrame with the one-hot encoded columns
+df = pd.concat([df, color_one_hot], axis=1)
+
+print("\nDataFrame after encoding:")
+print(df)
